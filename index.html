@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syed Natural - Live Poultry App</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d32f2f">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/htB6KXHz/Screenshot-2026-0322-222857.png">
+
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 10px; }
+        .app-container { max-width: 450px; margin: auto; background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #ddd; }
+        .header { background: #d32f2f; color: white; text-align: center; padding: 20px; border-bottom: 5px solid #b71c1c; }
+        .logo-img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid white; background: white; object-fit: cover; }
+        .live-timer { font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 20px; display: inline-block; margin-top: 10px; font-weight: bold; }
+        
+        #auth-section { padding: 30px 20px; text-align: center; }
+        .auth-input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 12px; font-size: 1.1rem; text-align: center; margin-bottom: 15px; outline: none; }
+        .auth-btn { background: #d32f2f; color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+        #main-app { display: none; }
+        .progress-container { display: flex; justify-content: center; gap: 15px; padding: 15px; background: #fff; border-bottom: 1px solid #eee; }
+        .step-dot { width: 10px; height: 10px; background: #ddd; border-radius: 50%; }
+        .step-dot.active { background: #d32f2f; width: 25px; border-radius: 10px; }
+
+        .order-section { padding: 20px; min-height: 420px; }
+        .step-page { display: none; }
+        .step-page.active { display: block; animation: slideIn 0.3s ease-out; }
+
+        .menu-card { background: #fff; border: 2px solid #eee; border-radius: 15px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s; }
+        .menu-card.selected { border-color: #d32f2f; background: #fff9f9; box-shadow: 0 4px 10px rgba(211,47,47,0.1); }
+        .menu-img { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; background: #f9f9f9; }
+        .menu-info h3 { margin: 0; font-size: 1rem; color: #333; }
+        .menu-rate { color: #d32f2f; font-weight: bold; font-size: 1.1rem; }
+
+        label { display: block; margin-top: 15px; font-weight: bold; color: #555; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 14px; margin-top: 5px; border: 2px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; outline: none; }
+
+        .gps-btn { background: #007bff; color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; margin-top: 15px; font-weight: bold; cursor: pointer; }
+        .result-box { background: #fff1f1; padding: 15px; border-radius: 15px; border: 2px dashed #d32f2f; margin-top: 20px; text-align: center; }
+        .final-val { font-size: 1.8rem; color: #d32f2f; font-weight: 900; }
+
+        .btn-row { display: flex; gap: 10px; margin-top: 25px; }
+        .btn-next { background: #d32f2f; color: white; border: none; flex: 1; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .btn-back { background: #f0f0f0; color: #666; border: none; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    </style>
+</head>
+<body>
+
+<div class="modal" id="summaryModal">
+    <div class="modal-content">
+        <h3 style="color:#d32f2f; margin-top:0; border-bottom: 2px solid #eee; padding-bottom: 10px;">Order Summary</h3>
+        <div id="summaryData" style="line-height: 1.8; font-size: 0.95rem; padding: 10px 0;"></div>
+        <button class="btn-next" style="background:#25d366; width:100%; margin-top:15px;" onclick="confirmAndSend()">Confirm & Send Order</button>
+        <button class="btn-back" style="width:100%; margin-top:10px;" onclick="closeModal()">Wapas Bolat (Edit)</button>
+    </div>
+</div>
+
+<div class="app-container">
+    <div class="header">
+        <img src="https://i.postimg.cc/htB6KXHz/Screenshot-2026-0322-222857.png" class="logo-img">
+        <h2 style="margin:5px 0 0;">SYED NATURAL</h2>
+        <div class="live-timer" id="liveClock">Loading...</div>
+    </div>
+
+    <div id="auth-section">
+        <div id="phone-box">
+            <h3>Login / Sign Up</h3>
+            <input type="tel" id="userPhone" class="auth-input" placeholder="Mobile Number" maxlength="10">
+            <button class="auth-btn" onclick="sendOTP()">Send OTP</button>
+        </div>
+        <div id="otp-box" style="display:none;">
+            <h3>Verify OTP</h3>
+            <p style="font-size:0.8rem; color:#666;">Enter 1234 to proceed</p>
+            <input type="number" id="otpInput" class="auth-input" placeholder="0 0 0 0">
+            <button class="auth-btn" onclick="verifyOTP()">Verify & Sign In</button>
+        </div>
+    </div>
+
+    <div id="main-app">
+        <div class="progress-container">
+            <div class="step-dot active" id="dot1"></div>
+            <div class="step-dot" id="dot2"></div>
+            <div class="step-dot" id="dot3"></div>
+            <div class="step-dot" id="dot4"></div>
+        </div>
+
+        <div class="order-section">
+            <div class="step-page active" id="step1">
+                <h3 style="margin-top:0;">Chicken Chunein:</h3>
+                
+                <div class="menu-card" id="c1" onclick="pick('Whole Chicken', 180, 'c1')">
+                    <img src="https://i.postimg.cc/zBrFghFn/images-(1).png" class="menu-img">
+                    <div class="menu-info"><h3>Whole Chicken</h3><div class="menu-rate">₹180/kg</div></div>
+                </div>
+                
+                <div class="menu-card" id="c2" onclick="pick('Curry Cut', 220, 'c2')">
+                    <img src="https://i.postimg.cc/LsBNvvXy/c770bfb6-bb8a-48b9-abe3-df519a0c7954-(1).png" class="menu-img">
+                    <div class="menu-info"><h3>Curry Cut</h3><div class="menu-rate">₹220/kg</div></div>
+                </div>
+                
+                <div class="menu-card" id="c3" onclick="pick('Boneless', 350, 'c3')">
+                    <img src="https://i.postimg.cc/rwhSpbDy/1734373006Chicken-Breast-Boneless.png" class="menu-img">
+                    <div class="menu-info"><h3>Boneless</h3><div class="menu-rate">₹350/kg</div></div>
+                </div>
+                
+                <button class="btn-next" onclick="go(2)">Next ➔</button>
+            </div>
+
+            <div class="step-page" id="step2">
+                <label>Aapka Naam:</label>
+                <input type="text" id="custName" placeholder="Apna naam likhein">
+                <div class="btn-row">
+                    <button class="btn-back" onclick="goToStep(1)">Back</button>
+                    <button class="btn-next" onclick="go(3)">Next ➔</button>
+                </div>
+            </div>
+
+            <div class="step-page" id="step3">
+                <p id="selTitle" style="font-weight:bold; color:#d32f2f;"></p>
+                <label>Order Type:</label>
+                <select id="method" onchange="calc()">
+                    <option value="weight">Wazan (KG/Gram)</option>
+                    <option value="money">Paisa (Rupees)</option>
+                </select>
+                <label>Quantity:</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="number" id="qty" placeholder="Eg: 500" oninput="calc()">
+                    <select id="unit" style="width: 100px;" onchange="calc()">
+                        <option value="kg">KG</option>
+                        <option value="gm">Gram</option>
+                        <option value="rs" id="optRs" style="display:none;">Rs</option>
+                    </select>
+                </div>
+                <div class="result-box">
+                    <div class="final-val" id="total">₹0</div>
+                    <div id="sub" style="font-size: 0.9rem; color:#666;">Bill Calculation</div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-back" onclick="goToStep(2)">Back</button>
+                    <button class="btn-next" onclick="go(4)">Next ➔</button>
+                </div>
+            </div>
+
+            <div class="step-page" id="step4">
+                <label>Delivery Area:</label>
+                <select id="area" onchange="updateV()">
+                    <option value="">-- Area Chunein --</option>
+                    <option value="Dubrajpur">Dubrajpur</option>
+                    <option value="Ilambazar">Ilambazar</option>
+                </select>
+                <label>Village:</label>
+                <select id="vill"><option value="">-- Gaon Chunein --</option></select>
+                <button class="gps-btn" onclick="getGPS()">📍 Add My Location (GPS)</button>
+                <label>Landmark:</label>
+                <input type="text" id="land" placeholder="Dukan/Masjid ke paas">
+                <div class="btn-row">
+                    <button class="btn-back" onclick="goToStep(3)">Back</button>
+                    <button class="btn-next" style="background:#25d366;" onclick="showSum()">Review Order ➔</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- SERVICE WORKER REGISTRATION ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker Registered!'))
+                .catch(err => console.log('Service Worker Error:', err));
+        });
+    }
+
+    const AAJ_KA_RATE = { whole: 180, curry: 220, bone: 350 };
+    let selItem = "";
+    let userGPS = "";
+    let userMobile = "";
+
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('liveClock').innerText = now.toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true });
+    }
+    setInterval(updateClock, 1000);
+
+    function sendOTP() {
+        let ph = document.getElementById('userPhone').value;
+        if(ph.length < 10) { alert("Sahi number likhein!"); return; }
+        userMobile = ph;
+        document.getElementById('phone-box').style.display = 'none';
+        document.getElementById('otp-box').style.display = 'block';
+    }
+
+    function verifyOTP() {
+        if(document.getElementById('otpInput').value === "1234") {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            updateClock();
+        } else { alert("Galat OTP! 1234 try karein."); }
+    }
+
+    function pick(n, r, id) {
+        selItem = n;
+        document.querySelectorAll('.menu-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById(id).classList.add('selected');
+        document.getElementById('selTitle').innerText = `Selected: ${n} (₹${r}/kg)`;
+        calc();
+    }
+
+    function calc() {
+        let m = document.getElementById('method').value;
+        let q = parseFloat(document.getElementById('qty').value) || 0;
+        let u = document.getElementById('unit');
+        let r = (selItem === "Whole Chicken") ? AAJ_KA_RATE.whole : (selItem === "Curry Cut") ? AAJ_KA_RATE.curry : AAJ_KA_RATE.bone;
+        
+        if(m === "weight") {
+            document.getElementById('optRs').style.display = 'none';
+            if(u.value === "rs") u.value = "kg";
+            let t = (u.value === "kg") ? (r * q) : ((r / 1000) * q);
+            document.getElementById('total').innerText = "₹" + Math.round(t);
+            document.getElementById('sub').innerText = q + " " + u.value.toUpperCase() + " ka bill";
+        } else {
+            document.getElementById('optRs').style.display = 'block';
+            u.value = "rs";
+            let w = (q / r) * 1000;
+            document.getElementById('total').innerText = w >= 1000 ? (w/1000).toFixed(2) + " KG" : Math.round(w) + " Gram";
+            document.getElementById('sub').innerText = "₹" + q + " mein milne wala wazan";
+        }
+    }
+
+    function go(s) {
+        if(s==2 && !selItem) { alert("Chicken chunein!"); return; }
+        if(s==3 && !document.getElementById('custName').value) { alert("Naam likhein!"); return; }
+        if(s==4 && !document.getElementById('qty').value) { alert("Quantity bhariye!"); return; }
+        goToStep(s);
+    }
+
+    function goToStep(step) {
+        document.querySelectorAll('.step-page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
+        document.getElementById('step' + step).classList.add('active');
+        for(let i=1; i<=step; i++) document.getElementById('dot' + i).classList.add('active');
+    }
+
+    const villages = {
+        "Dubrajpur": ["তরুলিয়া", "মেটাগ্রাম", "শিমুলডিহি", "ঝিরুল", "আমুড়ি", "আউলিয়া", "গোপালপুর", "রেংনা", "ভাটগ্রাম", "মাহমুদপুর", "পুলসরা", "কামালপুর", "ফকিরবেড়া"],
+        "Ilambazar": ["Achhaipara", "Akamba", "Amladihi", "Anaipur", "Baharampur", "Balarpur", "Balta", "Baranabagram", "Baruipur", "Batikor", "Beloa", "Bhabanipur", "Bharatpur", "Brahmandihi", "Chak Paran", "Chaupahari", "Chella", "Dhalla", "Dhulpur", "Dumrui", "Etapur"]
+    };
+
+    function updateV() {
+        let a = document.getElementById('area').value;
+        let v = document.getElementById('vill');
+        v.innerHTML = '<option value="">-- Gaon --</option>';
+        if (a) villages[a].forEach(x => { let o = document.createElement('option'); o.value = x; o.innerText = x; v.appendChild(o); });
+    }
+
+    function getGPS() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                userGPS = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                alert("Location Mil Gayi! ✅");
+            }, () => { alert("GPS Permission dejiye."); });
+        }
+    }
+
+    function showSum() {
+        if(!document.getElementById('vill').value) { alert("Gaon chunein!"); return; }
+        const now = new Date();
+        let html = `
+            <div style="background:#eee; padding:5px; border-radius:10px; margin-bottom:10px; text-align:center;">
+                <b>📅 ${now.toLocaleDateString()} | ⏰ ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</b>
+            </div>
+            <b>Customer:</b> ${document.getElementById('custName').value} (${userMobile})<br>
+            <b>Item:</b> ${selItem}<br>
+            <b>Result:</b> ${document.getElementById('total').innerText}<br>
+            <b>Address:</b> ${document.getElementById('vill').value}, ${document.getElementById('area').value}<br>
+            <b>GPS:</b> ${userGPS ? "Attached ✅" : "No"}`;
+        
+        document.getElementById('summaryData').innerHTML = html;
+        document.getElementById('summaryModal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('summaryModal').style.display = 'none'; }
+
+    function confirmAndSend() {
+        let msg = `*SYED NATURAL - ORDER*%0A` +
+                  `📅 ${new Date().toLocaleString()}%0A` +
+                  `--------------------%0A` +
+                  `👤 *Customer:* ${document.getElementById('custName').value} (${userMobile})%0A` +
+                  `🍗 *Item:* ${selItem}%0A` +
+                  `⚖️ *Order:* ${document.getElementById('qty').value} ${document.getElementById('unit').value.toUpperCase()}%0A` +
+                  `💰 *Final:* ${document.getElementById('total').innerText}%0A` +
+                  `🏠 *Location:* ${document.getElementById('vill').value}, ${document.getElementById('area').value}%0A` +
+                  `📍 *Landmark:* ${document.getElementById('land').value}`;
+        if(userGPS) msg += `%0A🗺️ *GPS:* ${userGPS}`;
+        window.open(`https://wa.me/919732151605?text=${msg}`);
+    }
+</script>
+</body>
+</html>
