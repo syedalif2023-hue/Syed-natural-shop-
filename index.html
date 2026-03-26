@@ -9,18 +9,18 @@
     <meta name="theme-color" content="#d32f2f">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/htB6KXHz/Screenshot-2026-0322-222857.png">
 
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9416108474178872" crossorigin="anonymous"></script>
+
     <style>
+        /* AAPKA ORIGINAL STYLE */
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 10px; }
-        .app-container { max-width: 450px; margin: auto; background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #ddd; }
+        .app-container { max-width: 450px; margin: auto; background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #ddd; padding-bottom: 65px; }
         .header { background: #d32f2f; color: white; text-align: center; padding: 20px; border-bottom: 5px solid #b71c1c; }
         .logo-img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid white; background: white; object-fit: cover; }
         .live-timer { font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 20px; display: inline-block; margin-top: 10px; font-weight: bold; }
         
-        #auth-section { padding: 30px 20px; text-align: center; }
-        .auth-input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 12px; font-size: 1.1rem; text-align: center; margin-bottom: 15px; outline: none; }
-        .auth-btn { background: #d32f2f; color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; }
-
-        #main-app { display: none; }
         .progress-container { display: flex; justify-content: center; gap: 15px; padding: 15px; background: #fff; border-bottom: 1px solid #eee; }
         .step-dot { width: 10px; height: 10px; background: #ddd; border-radius: 50%; }
         .step-dot.active { background: #d32f2f; width: 25px; border-radius: 10px; }
@@ -46,12 +46,33 @@
         .btn-next { background: #d32f2f; color: white; border: none; flex: 1; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; }
         .btn-back { background: #f0f0f0; color: #666; border: none; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; }
 
+        /* Admin Panel Styling */
+        #admin-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10000; padding: 20px; box-sizing: border-box; }
+        .admin-btn-small { font-size: 0.7rem; color: #ccc; cursor: pointer; text-align: center; margin-top: 10px; }
+
+        #fixed-ad-container { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 1px solid #ddd; z-index: 999; text-align: center; height: 60px; display: flex; align-items: center; justify-content: center; }
+
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
+
+<div id="admin-panel">
+    <h2 style="color:#d32f2f;">Admin: Update Daily Rates</h2>
+    <label>Admin Password:</label>
+    <input type="password" id="adminPass" placeholder="Enter Password">
+    <hr>
+    <label>Whole Chicken Rate (₹):</label>
+    <input type="number" id="newWholeRate" placeholder="Eg: 180">
+    <label>Curry Cut Rate (₹):</label>
+    <input type="number" id="newCurryRate" placeholder="Eg: 220">
+    <label>Boneless Rate (₹):</label>
+    <input type="number" id="newBoneRate" placeholder="Eg: 350">
+    <button class="btn-next" style="margin-top:20px;" onclick="saveRates()">Save New Rates</button>
+    <button class="btn-back" style="width:100%; margin-top:10px;" onclick="toggleAdmin(false)">Back to App</button>
+</div>
 
 <div class="modal" id="summaryModal">
     <div class="modal-content">
@@ -69,21 +90,7 @@
         <div class="live-timer" id="liveClock">Loading...</div>
     </div>
 
-    <div id="auth-section">
-        <div id="phone-box">
-            <h3>Login / Sign Up</h3>
-            <input type="tel" id="userPhone" class="auth-input" placeholder="Mobile Number" maxlength="10">
-            <button class="auth-btn" onclick="sendOTP()">Send OTP</button>
-        </div>
-        <div id="otp-box" style="display:none;">
-            <h3>Verify OTP</h3>
-            <p style="font-size:0.8rem; color:#666;">Enter 1234 to proceed</p>
-            <input type="number" id="otpInput" class="auth-input" placeholder="0 0 0 0">
-            <button class="auth-btn" onclick="verifyOTP()">Verify & Sign In</button>
-        </div>
-    </div>
-
-    <div id="main-app">
+    <div id="main-app" style="display: block;">
         <div class="progress-container">
             <div class="step-dot active" id="dot1"></div>
             <div class="step-dot" id="dot2"></div>
@@ -95,22 +102,23 @@
             <div class="step-page active" id="step1">
                 <h3 style="margin-top:0;">Chicken Chunein:</h3>
                 
-                <div class="menu-card" id="c1" onclick="pick('Whole Chicken', 180, 'c1')">
+                <div class="menu-card" id="c1" onclick="pick('Whole Chicken', 'whole', 'c1')">
                     <img src="https://i.postimg.cc/zBrFghFn/images-(1).png" class="menu-img">
-                    <div class="menu-info"><h3>Whole Chicken</h3><div class="menu-rate">₹180/kg</div></div>
+                    <div class="menu-info"><h3>Whole Chicken</h3><div class="menu-rate" id="rate-whole">₹--/kg</div></div>
                 </div>
                 
-                <div class="menu-card" id="c2" onclick="pick('Curry Cut', 220, 'c2')">
+                <div class="menu-card" id="c2" onclick="pick('Curry Cut', 'curry', 'c2')">
                     <img src="https://i.postimg.cc/LsBNvvXy/c770bfb6-bb8a-48b9-abe3-df519a0c7954-(1).png" class="menu-img">
-                    <div class="menu-info"><h3>Curry Cut</h3><div class="menu-rate">₹220/kg</div></div>
+                    <div class="menu-info"><h3>Curry Cut</h3><div class="menu-rate" id="rate-curry">₹--/kg</div></div>
                 </div>
                 
-                <div class="menu-card" id="c3" onclick="pick('Boneless', 350, 'c3')">
+                <div class="menu-card" id="c3" onclick="pick('Boneless', 'bone', 'c3')">
                     <img src="https://i.postimg.cc/rwhSpbDy/1734373006Chicken-Breast-Boneless.png" class="menu-img">
-                    <div class="menu-info"><h3>Boneless</h3><div class="menu-rate">₹350/kg</div></div>
+                    <div class="menu-info"><h3>Boneless</h3><div class="menu-rate" id="rate-bone">₹--/kg</div></div>
                 </div>
                 
                 <button class="btn-next" onclick="go(2)">Next ➔</button>
+                <div class="admin-btn-small" onclick="toggleAdmin(true)">Admin Login</div>
             </div>
 
             <div class="step-page" id="step2">
@@ -167,50 +175,82 @@
             </div>
         </div>
     </div>
+
+    <div id="fixed-ad-container">
+        <ins class="adsbygoogle"
+             style="display:inline-block;width:320px;height:50px"
+             data-ad-client="ca-pub-9416108474178872"
+             data-ad-slot="YOUR_AD_SLOT_ID"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
 </div>
 
 <script>
-    // --- SERVICE WORKER REGISTRATION ---
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker Registered!'))
-                .catch(err => console.log('Service Worker Error:', err));
+    // --- FIREBASE CONFIGURATION ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyAPv1cMZJ-kct_tKu51XbOvgexw5r_rHWI",
+      databaseURL: "https://syed-poultry-default-rtdb.firebaseio.com", 
+      projectId: "syed-poultry",
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    let AAJ_KA_RATE = { whole: 180, curry: 220, bone: 350 };
+    let selItem = "";
+    let userGPS = "";
+
+    // 1. Database se rates fetch karna
+    database.ref('chicken_rates').on('value', (snapshot) => {
+        if (snapshot.exists()) {
+            AAJ_KA_RATE = snapshot.val();
+            updateRateDisplay();
+        }
+    });
+
+    function updateRateDisplay() {
+        document.getElementById('rate-whole').innerText = `₹${AAJ_KA_RATE.whole}/kg`;
+        document.getElementById('rate-curry').innerText = `₹${AAJ_KA_RATE.curry}/kg`;
+        document.getElementById('rate-bone').innerText = `₹${AAJ_KA_RATE.bone}/kg`;
+    }
+
+    // 2. Admin Panel Functions
+    function toggleAdmin(show) {
+        document.getElementById('admin-panel').style.display = show ? 'block' : 'none';
+    }
+
+    function saveRates() {
+        const pass = document.getElementById('adminPass').value;
+        if (pass !== "syed786") { alert("Galat Password!"); return; } 
+
+        const newRates = {
+            whole: parseInt(document.getElementById('newWholeRate').value) || AAJ_KA_RATE.whole,
+            curry: parseInt(document.getElementById('newCurryRate').value) || AAJ_KA_RATE.curry,
+            bone: parseInt(document.getElementById('newBoneRate').value) || AAJ_KA_RATE.bone
+        };
+
+        database.ref('chicken_rates').set(newRates).then(() => {
+            alert("Rates Updated Successfully! ✅");
+            toggleAdmin(false);
         });
     }
 
-    const AAJ_KA_RATE = { whole: 180, curry: 220, bone: 350 };
-    let selItem = "";
-    let userGPS = "";
-    let userMobile = "";
-
+    // --- ORIGINAL APP LOGIC ---
     function updateClock() {
         const now = new Date();
         document.getElementById('liveClock').innerText = now.toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true });
     }
     setInterval(updateClock, 1000);
+    updateClock();
 
-    function sendOTP() {
-        let ph = document.getElementById('userPhone').value;
-        if(ph.length < 10) { alert("Sahi number likhein!"); return; }
-        userMobile = ph;
-        document.getElementById('phone-box').style.display = 'none';
-        document.getElementById('otp-box').style.display = 'block';
-    }
-
-    function verifyOTP() {
-        if(document.getElementById('otpInput').value === "1234") {
-            document.getElementById('auth-section').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            updateClock();
-        } else { alert("Galat OTP! 1234 try karein."); }
-    }
-
-    function pick(n, r, id) {
+    let currentRate = 0;
+    function pick(n, key, id) {
         selItem = n;
+        currentRate = AAJ_KA_RATE[key];
         document.querySelectorAll('.menu-card').forEach(c => c.classList.remove('selected'));
         document.getElementById(id).classList.add('selected');
-        document.getElementById('selTitle').innerText = `Selected: ${n} (₹${r}/kg)`;
+        document.getElementById('selTitle').innerText = `Selected: ${n} (₹${currentRate}/kg)`;
         calc();
     }
 
@@ -218,7 +258,7 @@
         let m = document.getElementById('method').value;
         let q = parseFloat(document.getElementById('qty').value) || 0;
         let u = document.getElementById('unit');
-        let r = (selItem === "Whole Chicken") ? AAJ_KA_RATE.whole : (selItem === "Curry Cut") ? AAJ_KA_RATE.curry : AAJ_KA_RATE.bone;
+        let r = currentRate;
         
         if(m === "weight") {
             document.getElementById('optRs').style.display = 'none';
@@ -266,40 +306,47 @@
             navigator.geolocation.getCurrentPosition((pos) => {
                 userGPS = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
                 alert("Location Mil Gayi! ✅");
-            }, () => { alert("GPS Permission dejiye."); });
+            });
         }
     }
 
     function showSum() {
         if(!document.getElementById('vill').value) { alert("Gaon chunein!"); return; }
         const now = new Date();
-        let html = `
-            <div style="background:#eee; padding:5px; border-radius:10px; margin-bottom:10px; text-align:center;">
-                <b>📅 ${now.toLocaleDateString()} | ⏰ ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</b>
-            </div>
-            <b>Customer:</b> ${document.getElementById('custName').value} (${userMobile})<br>
-            <b>Item:</b> ${selItem}<br>
-            <b>Result:</b> ${document.getElementById('total').innerText}<br>
-            <b>Address:</b> ${document.getElementById('vill').value}, ${document.getElementById('area').value}<br>
-            <b>GPS:</b> ${userGPS ? "Attached ✅" : "No"}`;
-        
+        let html = `<b>👤 Customer:</b> ${document.getElementById('custName').value}<br>
+                    <b>🍗 Item:</b> ${selItem}<br>
+                    <b>💰 Result:</b> ${document.getElementById('total').innerText}<br>
+                    <b>🏠 Address:</b> ${document.getElementById('vill').value}`;
         document.getElementById('summaryData').innerHTML = html;
         document.getElementById('summaryModal').style.display = 'flex';
     }
 
     function closeModal() { document.getElementById('summaryModal').style.display = 'none'; }
 
+    // --- UPDATED WHATSAPP MESSAGE (WITH EMOJIS) ---
     function confirmAndSend() {
+        const name = document.getElementById('custName').value;
+        const quantity = document.getElementById('qty').value;
+        const unit = document.getElementById('unit').value.toUpperCase();
+        const finalPrice = document.getElementById('total').innerText;
+        const area = document.getElementById('area').value;
+        const village = document.getElementById('vill').value;
+        const landmark = document.getElementById('land').value;
+        const now = new Date();
+        const timeStr = now.toLocaleString('en-IN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true });
+
         let msg = `*SYED NATURAL - ORDER*%0A` +
-                  `📅 ${new Date().toLocaleString()}%0A` +
+                  `🗓️ ${timeStr}%0A` +
                   `--------------------%0A` +
-                  `👤 *Customer:* ${document.getElementById('custName').value} (${userMobile})%0A` +
+                  `👤 *Customer:* ${name}%0A` +
                   `🍗 *Item:* ${selItem}%0A` +
-                  `⚖️ *Order:* ${document.getElementById('qty').value} ${document.getElementById('unit').value.toUpperCase()}%0A` +
-                  `💰 *Final:* ${document.getElementById('total').innerText}%0A` +
-                  `🏠 *Location:* ${document.getElementById('vill').value}, ${document.getElementById('area').value}%0A` +
-                  `📍 *Landmark:* ${document.getElementById('land').value}`;
+                  `⚖️ *Order:* ${quantity} ${unit}%0A` +
+                  `💰 *Final:* ${finalPrice}%0A` +
+                  `🏠 *Location:* ${village}, ${area}%0A` +
+                  `📍 *Landmark:* ${landmark || 'N/A'}`;
+        
         if(userGPS) msg += `%0A🗺️ *GPS:* ${userGPS}`;
+        
         window.open(`https://wa.me/918637831146?text=${msg}`);
     }
 </script>
