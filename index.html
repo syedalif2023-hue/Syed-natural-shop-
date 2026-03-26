@@ -14,44 +14,31 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9416108474178872" crossorigin="anonymous"></script>
 
     <style>
-        /* AAPKA ORIGINAL STYLE */
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 10px; }
         .app-container { max-width: 450px; margin: auto; background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #ddd; padding-bottom: 65px; }
         .header { background: #d32f2f; color: white; text-align: center; padding: 20px; border-bottom: 5px solid #b71c1c; }
         .logo-img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid white; background: white; object-fit: cover; }
         .live-timer { font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 20px; display: inline-block; margin-top: 10px; font-weight: bold; }
-        
         .progress-container { display: flex; justify-content: center; gap: 15px; padding: 15px; background: #fff; border-bottom: 1px solid #eee; }
         .step-dot { width: 10px; height: 10px; background: #ddd; border-radius: 50%; }
         .step-dot.active { background: #d32f2f; width: 25px; border-radius: 10px; }
-
         .order-section { padding: 20px; min-height: 420px; }
         .step-page { display: none; }
         .step-page.active { display: block; animation: slideIn 0.3s ease-out; }
-
-        .menu-card { background: #fff; border: 2px solid #eee; border-radius: 15px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s; }
+        .menu-card { background: #fff; border: 2px solid #eee; border-radius: 15px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
         .menu-card.selected { border-color: #d32f2f; background: #fff9f9; box-shadow: 0 4px 10px rgba(211,47,47,0.1); }
-        .menu-img { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; background: #f9f9f9; }
+        .menu-img { width: 700px; height: 70px; border-radius: 12px; object-fit: cover; }
         .menu-info h3 { margin: 0; font-size: 1rem; color: #333; }
         .menu-rate { color: #d32f2f; font-weight: bold; font-size: 1.1rem; }
-
         label { display: block; margin-top: 15px; font-weight: bold; color: #555; font-size: 0.9rem; }
-        input, select { width: 100%; padding: 14px; margin-top: 5px; border: 2px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; outline: none; }
-
-        .gps-btn { background: #007bff; color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; margin-top: 15px; font-weight: bold; cursor: pointer; }
+        input, select { width: 100%; padding: 14px; margin-top: 5px; border: 2px solid #eee; border-radius: 12px; box-sizing: border-box; outline: none; }
         .result-box { background: #fff1f1; padding: 15px; border-radius: 15px; border: 2px dashed #d32f2f; margin-top: 20px; text-align: center; }
         .final-val { font-size: 1.8rem; color: #d32f2f; font-weight: 900; }
-
+        #sub-text { font-size: 0.9rem; color: #666; margin-top: 5px; font-weight: bold; }
         .btn-row { display: flex; gap: 10px; margin-top: 25px; }
         .btn-next { background: #d32f2f; color: white; border: none; flex: 1; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; }
         .btn-back { background: #f0f0f0; color: #666; border: none; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; }
-
-        /* Admin Panel Styling */
         #admin-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10000; padding: 20px; box-sizing: border-box; }
-        .admin-btn-small { font-size: 0.7rem; color: #ccc; cursor: pointer; text-align: center; margin-top: 10px; }
-
-        #fixed-ad-container { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 1px solid #ddd; z-index: 999; text-align: center; height: 60px; display: flex; align-items: center; justify-content: center; }
-
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
@@ -60,26 +47,22 @@
 <body>
 
 <div id="admin-panel">
-    <h2 style="color:#d32f2f;">Admin: Update Daily Rates</h2>
-    <label>Admin Password:</label>
-    <input type="password" id="adminPass" placeholder="Enter Password">
+    <h2 style="color:#d32f2f;">Admin Panel</h2>
+    <input type="password" id="adminPass" placeholder="Password (syed786)">
     <hr>
-    <label>Whole Chicken Rate (₹):</label>
-    <input type="number" id="newWholeRate" placeholder="Eg: 180">
-    <label>Curry Cut Rate (₹):</label>
-    <input type="number" id="newCurryRate" placeholder="Eg: 220">
-    <label>Boneless Rate (₹):</label>
-    <input type="number" id="newBoneRate" placeholder="Eg: 350">
-    <button class="btn-next" style="margin-top:20px;" onclick="saveRates()">Save New Rates</button>
-    <button class="btn-back" style="width:100%; margin-top:10px;" onclick="toggleAdmin(false)">Back to App</button>
+    <label>Whole Chicken Rate:</label><input type="number" id="rateWhole">
+    <label>Curry Cut Rate:</label><input type="number" id="rateCurry">
+    <label>Boneless Rate:</label><input type="number" id="rateBone">
+    <button class="btn-next" style="margin-top:20px; width:100%;" onclick="saveRates()">Save New Rates</button>
+    <button class="btn-back" style="width:100%; margin-top:10px;" onclick="toggleAdmin(false)">Back</button>
 </div>
 
 <div class="modal" id="summaryModal">
     <div class="modal-content">
-        <h3 style="color:#d32f2f; margin-top:0; border-bottom: 2px solid #eee; padding-bottom: 10px;">Order Summary</h3>
-        <div id="summaryData" style="line-height: 1.8; font-size: 0.95rem; padding: 10px 0;"></div>
+        <h3 style="color:#d32f2f; margin-top:0;">Order Summary</h3>
+        <div id="summaryData" style="line-height: 1.8;"></div>
         <button class="btn-next" style="background:#25d366; width:100%; margin-top:15px;" onclick="confirmAndSend()">Confirm & Send Order</button>
-        <button class="btn-back" style="width:100%; margin-top:10px;" onclick="closeModal()">Wapas Bolat (Edit)</button>
+        <button class="btn-back" style="width:100%; margin-top:10px;" onclick="closeModal()">Edit Order</button>
     </div>
 </div>
 
@@ -90,7 +73,7 @@
         <div class="live-timer" id="liveClock">Loading...</div>
     </div>
 
-    <div id="main-app" style="display: block;">
+    <div id="main-app">
         <div class="progress-container">
             <div class="step-dot active" id="dot1"></div>
             <div class="step-dot" id="dot2"></div>
@@ -100,255 +83,151 @@
 
         <div class="order-section">
             <div class="step-page active" id="step1">
-                <h3 style="margin-top:0;">Chicken Chunein:</h3>
-                
                 <div class="menu-card" id="c1" onclick="pick('Whole Chicken', 'whole', 'c1')">
                     <img src="https://i.postimg.cc/zBrFghFn/images-(1).png" class="menu-img">
                     <div class="menu-info"><h3>Whole Chicken</h3><div class="menu-rate" id="rate-whole">₹--/kg</div></div>
                 </div>
-                
                 <div class="menu-card" id="c2" onclick="pick('Curry Cut', 'curry', 'c2')">
                     <img src="https://i.postimg.cc/LsBNvvXy/c770bfb6-bb8a-48b9-abe3-df519a0c7954-(1).png" class="menu-img">
                     <div class="menu-info"><h3>Curry Cut</h3><div class="menu-rate" id="rate-curry">₹--/kg</div></div>
                 </div>
-                
                 <div class="menu-card" id="c3" onclick="pick('Boneless', 'bone', 'c3')">
                     <img src="https://i.postimg.cc/rwhSpbDy/1734373006Chicken-Breast-Boneless.png" class="menu-img">
                     <div class="menu-info"><h3>Boneless</h3><div class="menu-rate" id="rate-bone">₹--/kg</div></div>
                 </div>
-                
-                <button class="btn-next" onclick="go(2)">Next ➔</button>
-                <div class="admin-btn-small" onclick="toggleAdmin(true)">Admin Login</div>
+                <button class="btn-next" onclick="go(2)" style="width:100%;">Next ➔</button>
+                <div style="font-size:0.7rem; color:#ccc; text-align:center; margin-top:10px; cursor:pointer;" onclick="toggleAdmin(true)">Admin Login</div>
             </div>
 
             <div class="step-page" id="step2">
-                <label>Aapka Naam:</label>
-                <input type="text" id="custName" placeholder="Apna naam likhein">
-                <div class="btn-row">
-                    <button class="btn-back" onclick="goToStep(1)">Back</button>
-                    <button class="btn-next" onclick="go(3)">Next ➔</button>
-                </div>
+                <label>Aapka Naam:</label><input type="text" id="custName" placeholder="Name">
+                <div class="btn-row"><button class="btn-back" onclick="goToStep(1)">Back</button><button class="btn-next" onclick="go(3)">Next</button></div>
             </div>
 
             <div class="step-page" id="step3">
                 <p id="selTitle" style="font-weight:bold; color:#d32f2f;"></p>
-                <label>Order Type:</label>
-                <select id="method" onchange="calc()">
-                    <option value="weight">Wazan (KG/Gram)</option>
-                    <option value="money">Paisa (Rupees)</option>
-                </select>
-                <label>Quantity:</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="number" id="qty" placeholder="Eg: 500" oninput="calc()">
-                    <select id="unit" style="width: 100px;" onchange="calc()">
-                        <option value="kg">KG</option>
-                        <option value="gm">Gram</option>
-                        <option value="rs" id="optRs" style="display:none;">Rs</option>
-                    </select>
-                </div>
-                <div class="result-box">
-                    <div class="final-val" id="total">₹0</div>
-                    <div id="sub" style="font-size: 0.9rem; color:#666;">Bill Calculation</div>
-                </div>
-                <div class="btn-row">
-                    <button class="btn-back" onclick="goToStep(2)">Back</button>
-                    <button class="btn-next" onclick="go(4)">Next ➔</button>
-                </div>
+                <select id="method" onchange="calc()"><option value="weight">Wazan (KG/GM)</option><option value="money">Paisa (Rs)</option></select>
+                <div style="display:flex; gap:10px; margin-top:10px;"><input type="number" id="qty" oninput="calc()"><select id="unit" onchange="calc()"><option value="kg">KG</option><option value="gm">GM</option><option value="rs" id="optRs" style="display:none;">Rs</option></select></div>
+                <div class="result-box"><div class="final-val" id="total">₹0</div><div id="sub-text">Calculation Details</div></div>
+                <div class="btn-row"><button class="btn-back" onclick="goToStep(2)">Back</button><button class="btn-next" onclick="go(4)">Next</button></div>
             </div>
 
             <div class="step-page" id="step4">
                 <label>Delivery Area:</label>
-                <select id="area" onchange="updateV()">
-                    <option value="">-- Area Chunein --</option>
-                    <option value="Dubrajpur">Dubrajpur</option>
-                    <option value="Ilambazar">Ilambazar</option>
-                </select>
+                <select id="area" onchange="updateV()"><option value="">-- Area --</option><option value="Dubrajpur">Dubrajpur</option><option value="Ilambazar">Ilambazar</option></select>
                 <label>Village:</label>
-                <select id="vill"><option value="">-- Gaon Chunein --</option></select>
-                <button class="gps-btn" onclick="getGPS()">📍 Add My Location (GPS)</button>
-                <label>Landmark:</label>
-                <input type="text" id="land" placeholder="Dukan/Masjid ke paas">
-                <div class="btn-row">
-                    <button class="btn-back" onclick="goToStep(3)">Back</button>
-                    <button class="btn-next" style="background:#25d366;" onclick="showSum()">Review Order ➔</button>
-                </div>
+                <select id="vill" style="margin-top:10px;"><option value="">-- Gaon --</option></select>
+                <input type="text" id="land" placeholder="Landmark" style="margin-top:10px;">
+                <div class="btn-row"><button class="btn-back" onclick="goToStep(3)">Back</button><button class="btn-next" style="background:#25d366;" onclick="showSum()">Review Order</button></div>
             </div>
         </div>
-    </div>
-
-    <div id="fixed-ad-container">
-        <ins class="adsbygoogle"
-             style="display:inline-block;width:320px;height:50px"
-             data-ad-client="ca-pub-9416108474178872"
-             data-ad-slot="YOUR_AD_SLOT_ID"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
     </div>
 </div>
 
 <script>
-    // --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
-      apiKey: "AIzaSyAPv1cMZJ-kct_tKu51XbOvgexw5r_rHWI",
-      databaseURL: "https://syed-poultry-default-rtdb.firebaseio.com", 
-      projectId: "syed-poultry",
+      apiKey: "AIzaSyCPdicAsCV8ut-SXNr41y32x-bpRyJ9-oI",
+      databaseURL: "https://syed-poultry-8f187-default-rtdb.firebaseio.com/",
+      projectId: "syed-poultry-8f187"
     };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
     let AAJ_KA_RATE = { whole: 180, curry: 220, bone: 350 };
-    let selItem = "";
-    let userGPS = "";
-
-    // 1. Database se rates fetch karna
-    database.ref('chicken_rates').on('value', (snapshot) => {
-        if (snapshot.exists()) {
-            AAJ_KA_RATE = snapshot.val();
-            updateRateDisplay();
-        }
-    });
-
-    function updateRateDisplay() {
-        document.getElementById('rate-whole').innerText = `₹${AAJ_KA_RATE.whole}/kg`;
-        document.getElementById('rate-curry').innerText = `₹${AAJ_KA_RATE.curry}/kg`;
-        document.getElementById('rate-bone').innerText = `₹${AAJ_KA_RATE.bone}/kg`;
-    }
-
-    // 2. Admin Panel Functions
-    function toggleAdmin(show) {
-        document.getElementById('admin-panel').style.display = show ? 'block' : 'none';
-    }
-
-    function saveRates() {
-        const pass = document.getElementById('adminPass').value;
-        if (pass !== "syed786") { alert("Galat Password!"); return; } 
-
-        const newRates = {
-            whole: parseInt(document.getElementById('newWholeRate').value) || AAJ_KA_RATE.whole,
-            curry: parseInt(document.getElementById('newCurryRate').value) || AAJ_KA_RATE.curry,
-            bone: parseInt(document.getElementById('newBoneRate').value) || AAJ_KA_RATE.bone
-        };
-
-        database.ref('chicken_rates').set(newRates).then(() => {
-            alert("Rates Updated Successfully! ✅");
-            toggleAdmin(false);
-        });
-    }
-
-    // --- ORIGINAL APP LOGIC ---
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('liveClock').innerText = now.toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true });
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    let currentRate = 0;
-    function pick(n, key, id) {
-        selItem = n;
-        currentRate = AAJ_KA_RATE[key];
-        document.querySelectorAll('.menu-card').forEach(c => c.classList.remove('selected'));
-        document.getElementById(id).classList.add('selected');
-        document.getElementById('selTitle').innerText = `Selected: ${n} (₹${currentRate}/kg)`;
-        calc();
-    }
-
-    function calc() {
-        let m = document.getElementById('method').value;
-        let q = parseFloat(document.getElementById('qty').value) || 0;
-        let u = document.getElementById('unit');
-        let r = currentRate;
-        
-        if(m === "weight") {
-            document.getElementById('optRs').style.display = 'none';
-            if(u.value === "rs") u.value = "kg";
-            let t = (u.value === "kg") ? (r * q) : ((r / 1000) * q);
-            document.getElementById('total').innerText = "₹" + Math.round(t);
-            document.getElementById('sub').innerText = q + " " + u.value.toUpperCase() + " ka bill";
-        } else {
-            document.getElementById('optRs').style.display = 'block';
-            u.value = "rs";
-            let w = (q / r) * 1000;
-            document.getElementById('total').innerText = w >= 1000 ? (w/1000).toFixed(2) + " KG" : Math.round(w) + " Gram";
-            document.getElementById('sub').innerText = "₹" + q + " mein milne wala wazan";
-        }
-    }
-
-    function go(s) {
-        if(s==2 && !selItem) { alert("Chicken chunein!"); return; }
-        if(s==3 && !document.getElementById('custName').value) { alert("Naam likhein!"); return; }
-        if(s==4 && !document.getElementById('qty').value) { alert("Quantity bhariye!"); return; }
-        goToStep(s);
-    }
-
-    function goToStep(step) {
-        document.querySelectorAll('.step-page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
-        document.getElementById('step' + step).classList.add('active');
-        for(let i=1; i<=step; i++) document.getElementById('dot' + i).classList.add('active');
-    }
+    let selItem = ""; let currentRate = 0;
 
     const villages = {
         "Dubrajpur": ["তরুলিয়া", "মেটাগ্রাম", "শিমুলডিহি", "ঝিরুল", "আমুড়ি", "আউলিয়া", "গোপালপুর", "রেংনা", "ভাটগ্রাম", "মাহমুদপুর", "পুলসরা", "কামালপুর", "ফকিরবেড়া"],
         "Ilambazar": ["Achhaipara", "Akamba", "Amladihi", "Anaipur", "Baharampur", "Balarpur", "Balta", "Baranabagram", "Baruipur", "Batikor", "Beloa", "Bhabanipur", "Bharatpur", "Brahmandihi", "Chak Paran", "Chaupahari", "Chella", "Dhalla", "Dhulpur", "Dumrui", "Etapur"]
     };
 
-    function updateV() {
-        let a = document.getElementById('area').value;
-        let v = document.getElementById('vill');
-        v.innerHTML = '<option value="">-- Gaon --</option>';
-        if (a) villages[a].forEach(x => { let o = document.createElement('option'); o.value = x; o.innerText = x; v.appendChild(o); });
+    database.ref('chicken_rates').on('value', (s) => { if(s.exists()){ AAJ_KA_RATE = s.val(); updateUI(); } });
+    function updateUI(){
+        document.getElementById('rate-whole').innerText = `₹${AAJ_KA_RATE.whole}/kg`;
+        document.getElementById('rate-curry').innerText = `₹${AAJ_KA_RATE.curry}/kg`;
+        document.getElementById('rate-bone').innerText = `₹${AAJ_KA_RATE.bone}/kg`;
     }
 
-    function getGPS() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((pos) => {
-                userGPS = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                alert("Location Mil Gayi! ✅");
-            });
+    function toggleAdmin(s){ document.getElementById('admin-panel').style.display = s ? 'block' : 'none'; }
+    function saveRates(){
+        if(document.getElementById('adminPass').value !== "syed786"){ alert("Wrong Password!"); return; }
+        database.ref('chicken_rates').set({
+            whole: parseInt(document.getElementById('rateWhole').value) || AAJ_KA_RATE.whole,
+            curry: parseInt(document.getElementById('rateCurry').value) || AAJ_KA_RATE.curry,
+            bone: parseInt(document.getElementById('rateBone').value) || AAJ_KA_RATE.bone
+        }).then(() => { alert("Updated!"); toggleAdmin(false); });
+    }
+
+    function pick(n, k, id){
+        selItem = n; currentRate = AAJ_KA_RATE[k];
+        document.querySelectorAll('.menu-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById(id).classList.add('selected');
+        document.getElementById('selTitle').innerText = `${n} (₹${currentRate}/kg)`;
+        calc();
+    }
+
+    function calc(){
+        let m = document.getElementById('method').value; 
+        let q = parseFloat(document.getElementById('qty').value) || 0; 
+        let u = document.getElementById('unit');
+        let sub = document.getElementById('sub-text');
+        if(m === "weight"){
+            document.getElementById('optRs').style.display = 'none'; if(u.value==="rs") u.value="kg";
+            document.getElementById('total').innerText = "₹" + Math.round((u.value==="kg"?currentRate:currentRate/1000)*q);
+            sub.innerText = q + " " + u.value.toUpperCase() + " ka bill";
+        } else {
+            document.getElementById('optRs').style.display = 'block'; u.value="rs";
+            let w = (q/currentRate)*1000;
+            let wtText = w>=1000 ? (w/1000).toFixed(2)+" KG" : Math.round(w)+" GM";
+            document.getElementById('total').innerText = wtText;
+            sub.innerText = "₹" + q + " mein milne wala wazan";
         }
     }
 
-    function showSum() {
-        if(!document.getElementById('vill').value) { alert("Gaon chunein!"); return; }
-        const now = new Date();
-        let html = `<b>👤 Customer:</b> ${document.getElementById('custName').value}<br>
-                    <b>🍗 Item:</b> ${selItem}<br>
-                    <b>💰 Result:</b> ${document.getElementById('total').innerText}<br>
-                    <b>🏠 Address:</b> ${document.getElementById('vill').value}`;
-        document.getElementById('summaryData').innerHTML = html;
-        document.getElementById('summaryModal').style.display = 'flex';
+    function go(s){ if(s==2 && !selItem) return; goToStep(s); }
+    function goToStep(s){
+        document.querySelectorAll('.step-page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
+        document.getElementById('step' + s).classList.add('active');
+        for(let i=1; i<=s; i++) document.getElementById('dot' + i).classList.add('active');
     }
 
-    function closeModal() { document.getElementById('summaryModal').style.display = 'none'; }
+    function updateV(){
+        let a = document.getElementById('area').value; let v = document.getElementById('vill');
+        v.innerHTML = '<option value="">-- Gaon --</option>';
+        if (a) villages[a].forEach(x => { let o = document.createElement('option'); o.value=x; o.text=x; v.add(o); });
+    }
 
-    // --- UPDATED WHATSAPP MESSAGE (WITH EMOJIS) ---
-    function confirmAndSend() {
-        const name = document.getElementById('custName').value;
-        const quantity = document.getElementById('qty').value;
-        const unit = document.getElementById('unit').value.toUpperCase();
-        const finalPrice = document.getElementById('total').innerText;
-        const area = document.getElementById('area').value;
-        const village = document.getElementById('vill').value;
-        const landmark = document.getElementById('land').value;
-        const now = new Date();
-        const timeStr = now.toLocaleString('en-IN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true });
-
-        let msg = `*SYED NATURAL - ORDER*%0A` +
-                  `🗓️ ${timeStr}%0A` +
-                  `--------------------%0A` +
-                  `👤 *Customer:* ${name}%0A` +
-                  `🍗 *Item:* ${selItem}%0A` +
-                  `⚖️ *Order:* ${quantity} ${unit}%0A` +
-                  `💰 *Final:* ${finalPrice}%0A` +
-                  `🏠 *Location:* ${village}, ${area}%0A` +
-                  `📍 *Landmark:* ${landmark || 'N/A'}`;
+    function showSum(){
+        let q = document.getElementById('qty').value;
+        let u = document.getElementById('unit').value.toUpperCase();
+        let total = document.getElementById('total').innerText;
+        // Agar paise se order hai toh weight total wale box se lo
+        let orderDetail = document.getElementById('method').value === "money" ? total : q + " " + u;
         
-        if(userGPS) msg += `%0A🗺️ *GPS:* ${userGPS}`;
+        document.getElementById('summaryData').innerHTML = `👤 Name: ${document.getElementById('custName').value}<br>🍗 Item: ${selItem}<br>⚖️ Order: ${orderDetail}<br>💰 Final: ${total}<br>🏠 Address: ${document.getElementById('vill').value}`;
+        document.getElementById('summaryModal').style.display = 'flex';
+    }
+    function closeModal(){ document.getElementById('summaryModal').style.display = 'none'; }
+
+    function confirmAndSend(){
+        const name = document.getElementById('custName').value;
+        const q = document.getElementById('qty').value;
+        const u = document.getElementById('unit').value.toUpperCase();
+        const total = document.getElementById('total').innerText;
+        const village = document.getElementById('vill').value;
+        const area = document.getElementById('area').value;
+        const time = new Date().toLocaleString('en-IN', { hour12: true });
+
+        // WhatsApp Format Fix (Ab Quantity saaf dikhegi)
+        let orderText = document.getElementById('method').value === "money" ? total : `${q} ${u}`;
+
+        let msg = `*SYED NATURAL - ORDER*%0A🗓️ ${time}%0A--------------------%0A👤 *Customer:* ${name}%0A🍗 *Item:* ${selItem}%0A⚖️ *Order:* ${orderText}%0A💰 *Final Bill:* ${document.getElementById('method').value === "money" ? '₹'+q : total}%0A🏠 *Location:* ${village}, ${area}`;
         
         window.open(`https://wa.me/918637831146?text=${msg}`);
     }
+
+    setInterval(() => { document.getElementById('liveClock').innerText = new Date().toLocaleString(); }, 1000);
 </script>
 </body>
 </html>
